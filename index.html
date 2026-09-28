@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Writing Expressions Drill</title>
+<style>
+:root{
+  --ink:#1c1c1c; --muted:#6b6b6b; --line:#cfcfcf; --accent:#2457c5;
+  --good:#15803d; --good-bg:#e8f6ed; --bad:#c62828; --bad-bg:#fdeded; --hl:#ffe36e;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#fff;color:var(--ink);font-family:Verdana,Geneva,Tahoma,sans-serif;font-size:16px;line-height:1.4;display:flex;flex-direction:column;min-height:100%}
+button{font-family:inherit}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 3vw}
+.left{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.dtitle{margin:0;font-size:1.05rem;font-weight:bold}
+.hbtn{font-size:.9rem;font-weight:bold;border:1.5px solid var(--line);background:#fff;color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer}
+.tibtn{font-size:.9rem;font-weight:bold;border:1.5px solid var(--accent);background:#fff;color:var(--accent);padding:6px 14px;border-radius:8px;cursor:pointer}
+.tibtn:hover{background:var(--accent);color:#fff}
+.tibtn.sent{border-color:var(--good);color:var(--good)}
+.tibtn.sent:hover{background:var(--good);color:#fff}
+#count .goal{color:var(--muted);font-size:1rem}
+#count.met b{color:var(--good)}
+.hbtn[aria-expanded="true"]{border-color:var(--ink);color:var(--ink)}
+.right{display:flex;align-items:center;gap:16px}
+#count{font-size:1.05rem;color:var(--muted);user-select:none}
+#count b{color:var(--ink);font-size:1.25rem}
+
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.5vh;padding:1vh 4vw 5vh;outline:none;transition:padding .2s}
+body.key-open main{padding-right:340px}
+.card{width:100%;max-width:1400px;display:flex;flex-direction:column;align-items:center;gap:4vh}
+
+.ask{font-size:clamp(1.1rem,1.9vw,1.6rem);color:var(--muted)}
+.line{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.45em;font-size:clamp(1.8rem,4.2vw,3.8rem)}
+.eq{color:var(--muted)}
+.zone{display:inline-flex;align-items:center;gap:.14em;min-width:5.5em;min-height:1.5em;padding:.1em .12em;border-bottom:4px solid var(--ink);outline:none;transition:background .15s}
+.zone:focus{border-bottom-color:var(--accent)}
+.zone.over{background:#eef3fd}
+.zone.ok{border-bottom-color:var(--good)}
+.zone.no{border-bottom-color:var(--bad)}
+.bank{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;font-size:clamp(1.8rem,3.6vw,3.2rem)}
+.tile{display:inline-flex;align-items:center;justify-content:center;min-width:1.6em;min-height:1.5em;padding:0 .3em;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;line-height:1}
+.tile:hover{border-color:var(--ink)}
+.zone .tile{min-width:1.2em;min-height:1.25em;padding:0 .18em}
+.tile.gone{visibility:hidden}
+.tile.dragging{opacity:.25}
+.tile.ghost{position:fixed;left:0;top:0;pointer-events:none;z-index:50;box-shadow:0 8px 20px rgba(0,0,0,.18);cursor:grabbing;border-color:var(--ink)}
+.zone.ok .tile{border-color:var(--good);color:var(--good);background:var(--good-bg)}
+.zone.no .tile{border-color:var(--bad);color:var(--bad);background:var(--bad-bg)}
+.zone.done .tile{cursor:default}
+.fix{color:var(--good)}
+.t1{color:#1f5fbf}
+.t2{color:#c25400}
+.zone.ok .tile.t1{color:#1f5fbf;border-color:#1f5fbf;background:#eaf1fb}
+.zone.ok .tile.t2{color:#c25400;border-color:#c25400;background:#fdf0e6}
+.go:disabled{opacity:.35;cursor:default}
+
+.p-expr{font-size:clamp(3rem,8vw,6.5rem);line-height:1.1}
+.p-vocab{font-size:clamp(2.4rem,6vw,5rem);line-height:1.1}
+.p-story{font-size:clamp(1.25rem,2.3vw,2.1rem);line-height:1.55;max-width:62ch;text-align:left}
+mark{background:var(--hl);color:inherit;padding:0 .08em;border-radius:3px}
+
+.opts{display:grid;gap:18px;width:100%}
+.c4{grid-template-columns:repeat(4,1fr)}
+.c2{grid-template-columns:repeat(2,1fr);max-width:1200px}
+.c2.short{max-width:760px}
+.c5{grid-template-columns:repeat(5,1fr);max-width:900px}
+.opt{font-size:clamp(1.3rem,2.3vw,2.1rem);background:#fff;color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:2.4vh 1em;min-height:11vh;cursor:pointer}
+.opt.math,.c5 .opt,.c2.short .opt{font-size:clamp(1.6rem,3.2vw,2.8rem)}
+.opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--good);background:var(--good-bg);border-width:3px}
+.opt.no{border-color:var(--bad);background:var(--bad-bg);border-width:3px}
+
+.tokens{display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:.12em;font-size:clamp(2.6rem,7vw,5.5rem)}
+.tok{font:inherit;background:none;border:3px dashed var(--line);border-radius:12px;padding:0 .18em;color:var(--ink);cursor:pointer;line-height:1.15}
+.tok:disabled{cursor:default}
+.tok.sel{background:var(--hl);border-style:solid;border-color:#d4a800}
+.tok.ok{background:var(--good-bg);border-style:solid;border-color:var(--good)}
+.tok.no{background:var(--bad-bg);border-style:solid;border-color:var(--bad)}
+
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1;font-size:.75em;margin:0 .05em}
+.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 .2em .06em}
+.frac>span:last-child{padding:.06em .2em 0}
+
+.fb{min-height:1.5em;font-size:clamp(1rem,1.6vw,1.35rem);color:var(--muted);text-align:center}
+.actions{display:flex;gap:14px;min-height:56px}
+.go{font-size:1.2rem;font-weight:bold;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 38px;cursor:pointer}
+.go.ghost{background:#fff;color:var(--ink);border:2px solid var(--line)}
+.go[hidden]{display:inline-block;visibility:hidden}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.zone:focus-visible{outline:none}
+
+#key{position:fixed;top:64px;right:0;bottom:0;width:320px;padding:18px 22px;border-left:1.5px solid var(--line);background:#fff;overflow:auto;font-size:.95rem}
+#key[hidden]{display:none}
+#key h3{margin:14px 0 4px;font-size:1rem}
+#key h3:first-child{margin-top:0}
+#key ul{margin:0;padding-left:18px;color:var(--muted)}
+#key p{margin:14px 0 0}
+.flip{background:var(--hl);padding:0 .15em;border-radius:3px;color:var(--ink)}
+
+#teacher{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:20px}
+#teacher[hidden]{display:none}
+.tdlg{background:#fff;border-radius:14px;padding:24px 28px;width:min(820px,100%);max-height:90vh;overflow:auto}
+.tdlg h2{margin:0 0 14px;font-size:1.25rem}
+.tdlg table{border-collapse:collapse;width:100%;margin-bottom:16px}
+.tdlg th,.tdlg td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+.tdlg th{color:var(--muted);font-weight:normal}
+.tdlg .miss{font-size:.9rem}
+.tdlg .miss td{vertical-align:top}
+.tbtns{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+
+/* ---- turning it in ---- */
+.turnin{position:fixed;inset:0;z-index:100;overflow:auto;background:rgba(0,0,0,.35);padding:clamp(12px,4vh,40px) 16px}
+.turnin[hidden]{display:none}
+.ti-inner{max-width:640px;margin:0 auto;padding:26px clamp(18px,4vw,34px) 30px;background:#fff;border-radius:14px}
+.ti-inner h2{margin:0 0 6px;font-size:1.5rem}
+.ti-sub{color:var(--muted);line-height:1.55;margin:0 0 18px}
+.ti-recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.ti-recap>div{border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;color:var(--muted);font-size:.85rem}
+.ti-recap b{display:block;color:var(--ink);font-size:1.5rem}
+.ti-cats{width:100%;border-collapse:collapse;margin-top:14px;font-size:.9rem}
+.ti-cats th,.ti-cats td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line)}
+.ti-cats th{color:var(--muted);font-weight:normal}
+.ti-log{max-height:220px;overflow:auto;margin-top:16px;padding:6px 0;border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);font-size:.9rem}
+.ti-row{display:flex;gap:10px;align-items:baseline;padding:4px 2px}
+.ti-n{color:var(--muted);min-width:28px;text-align:right;font-size:.8rem}
+.ti-q{flex:1;min-width:0}
+.ti-k{font-size:.8rem;white-space:nowrap;color:var(--good)}
+.ti-k.miss{color:var(--bad)}
+#gform{margin-top:20px}
+#gform[hidden]{display:none}
+.ti-warn{background:#fff6d6;border-radius:10px;padding:11px 14px;margin-bottom:18px;line-height:1.55;font-size:.92rem}
+.ti-field{margin-bottom:14px}
+.ti-field label{display:block;margin-bottom:6px}
+.ti-field label em{font-style:normal;color:var(--muted);font-size:.88rem}
+.ti-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;margin-right:8px;border-radius:50%;background:var(--ink);color:#fff;font-size:.8rem}
+.ti-field input{font:inherit;font-size:1.05rem;color:var(--ink);width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff}
+.ti-field input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.ti-check{border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;margin:4px 0 16px}
+.ti-check .hd{color:var(--muted);font-size:.88rem;margin-bottom:8px}
+.ti-check .r{display:flex;gap:12px;align-items:baseline;margin-bottom:4px}
+.ti-check .r:last-child{margin-bottom:0;padding-top:6px;border-top:1.5px solid var(--line)}
+.ti-check .t{color:var(--muted);min-width:88px;font-size:.85rem}
+.ti-check .v.empty{color:var(--line)}
+.ti-feedback{margin-top:14px;min-height:1.2em}
+.ti-feedback .ok{color:var(--good)}
+.ti-feedback .nt{color:var(--muted)}
+.ti-after{margin-top:20px;padding-top:16px;border-top:1.5px solid var(--line);display:flex;gap:12px;align-items:center;flex-wrap:wrap;color:var(--muted)}
+
+@media (max-width:760px){
+  .c4{grid-template-columns:repeat(2,1fr)}
+  .c2{grid-template-columns:1fr}
+  .c5{grid-template-columns:repeat(5,1fr)}
+  body.key-open main{padding-right:4vw}
+  #key{width:100%;top:auto;height:50vh;border-left:none;border-top:1.5px solid var(--line)}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="left">
+    <h1 class="dtitle">Writing Expressions</h1>
+    <button class="tibtn" id="tiLink" type="button">Turn in</button>
+  </div>
+  <div class="right">
+    <button class="hbtn" id="keyBtn" aria-expanded="false" aria-controls="key" title="Key words">Key</button>
+    <span id="count"></span>
+  </div>
+</header>
+
+<main id="stage" tabindex="-1"></main>
+
+<aside id="key" hidden>
+  <h3>+ Add</h3><ul><li>plus, sum</li><li>more than</li><li>increased by</li><li>added to</li></ul>
+  <h3>− Subtract</h3><ul><li>minus, difference</li><li>decreased by, take away</li><li><span class="flip">less than</span></li><li><span class="flip">fewer than</span></li><li><span class="flip">subtract … from</span></li></ul>
+  <h3>× Multiply</h3><ul><li>times, product</li><li>multiplied by</li><li>groups of</li><li>twice, triple</li></ul>
+  <h3>÷ Divide</h3><ul><li>divided by, quotient</li><li>split equally</li><li>half of</li></ul>
+  <p><span class="flip">Highlighted</span> = flip the order.<br>5 less than n → n − 5</p>
+  <p>Number before letter: 3n</p>
+</aside>
+
+<div class="turnin" id="turnin" role="dialog" aria-modal="true" aria-labelledby="ti-title" hidden>
+  <div class="ti-inner">
+    <h2 id="ti-title">Turn in your work</h2>
+    <p class="ti-sub" id="ti-sub">Enter your period and name to turn in your work.</p>
+    <div class="ti-recap" id="ti-recap"></div>
+    <div id="ti-cats"></div>
+
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none"
+            onload="if(window.onHiddenFrameLoad)onHiddenFrameLoad()"></iframe>
+
+    <form action="https://docs.google.com/forms/d/e/1FAIpQLSe4_Gnrq1zyrttA3lSgrVBtMkaVaoMim31ByzoH-orxmfDB2A/formResponse"
+          method="POST" target="hidden_iframe" id="gform">
+      <div class="ti-warn">
+        Read the box labels before you type. Your <b>LAST name</b> goes in the
+        <b>Last name</b> box and your <b>FIRST name</b> goes in the <b>First name</b> box.
+        Swapped names cannot be matched to the roster and count as missing.
+      </div>
+      <div class="ti-field">
+        <label for="studentPeriod"><span class="ti-num">1</span>Period</label>
+        <input type="number" id="studentPeriod" placeholder="e.g. 3" min="1" max="10" required>
+      </div>
+      <div class="ti-field">
+        <label for="lastName"><span class="ti-num">2</span>LAST name
+          <em>&mdash; your family name, the one the roster is alphabetized by</em></label>
+        <input type="text" id="lastName" placeholder="Rodriguez" autocomplete="family-name" required>
+      </div>
+      <div class="ti-field">
+        <label for="firstName"><span class="ti-num">3</span>FIRST name
+          <em>&mdash; the name your teacher calls you by</em></label>
+        <input type="text" id="firstName" placeholder="Maria" autocomplete="given-name" required>
+      </div>
+      <div class="ti-check" id="nameCheck"></div>
+      <input type="hidden" id="studentName" name="entry.1899284808" value="">
+      <input type="hidden" id="formScore" name="entry.1974610095" value="">
+      <button type="submit" class="go" id="ti-submit">Submit Results</button>
+    </form>
+
+    <div class="ti-feedback" id="ti-feedback" role="status"></div>
+    <div class="ti-after">
+      <span id="ti-afterTxt">Want more practice?</span>
+      <button class="go ghost" type="button" id="ti-back">Keep practicing</button>
+    </div>
+  </div>
+</div>
+
+<div id="teacher" hidden role="dialog" aria-modal="true" aria-label="Teacher stats"><div class="tdlg" id="tdlg"></div></div>
+
+<script>
+(function(){
+const PREVIEW=false;
+const $=s=>document.querySelector(s);
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const VARS=['a','b','c','d','g','h','k','m','n','p','r','s','t','w','x','y','z'];
+
+function fmt(e){
+  return String(e)
+    .replace(/([A-Za-z0-9.]+)\/([A-Za-z0-9.]+)/g,'<span class="frac"><span>$1</span><span>$2</span></span>')
+    .replace(/\s*([+\-])\s*/g,' $1 ')
+    .replace(/-/g,'−').replace(/\s+/g,' ').trim();
+}
+function norm(s){
+  return String(s).toLowerCase()
+    .replace(/[−–—]/g,'-').replace(/÷/g,'/').replace(/[×·•*]/g,'')
+    .replace(/\$/g,'').replace(/\s+/g,'')
+    .replace(/\(([a-z0-9.]+)\)/g,'$1');
+}
+function hl(t,kw){
+  if(!kw)return t;
+  const i=t.toLowerCase().indexOf(kw.toLowerCase());
+  if(i<0)return t;
+  return t.slice(0,i)+'<mark>'+t.slice(i,i+kw.length)+'</mark>'+t.slice(i+kw.length);
+}
+
+/* ---------- Words to expression ---------- */
+const TIP={
+  add:'Add in either order.',
+  less:'“Less than” flips the order.',
+  fewer:'“Fewer than” flips the order.',
+  from:'“From” flips the order.',
+  order:'Keep the order.',
+  coef:'Number goes in front: 3n, not n3.',
+  div:'First thing named goes on top.'
+};
+const W1=[
+  (v,a)=>({text:`${v} increased by ${a}`,kw:'increased by',ans:[`${v}+${a}`,`${a}+${v}`],tip:TIP.add}),
+  (v,a)=>({text:`${a} more than ${v}`,kw:'more than',ans:[`${v}+${a}`,`${a}+${v}`],tip:TIP.add}),
+  (v,a)=>({text:`the sum of ${v} and ${a}`,kw:'sum',ans:[`${v}+${a}`,`${a}+${v}`],tip:TIP.add}),
+  (v,a)=>({text:`${v} plus ${a}`,kw:'plus',ans:[`${v}+${a}`,`${a}+${v}`],tip:TIP.add}),
+  (v,a)=>({text:`${a} added to ${v}`,kw:'added to',ans:[`${v}+${a}`,`${a}+${v}`],tip:TIP.add}),
+  (v,a)=>({text:`${a} less than ${v}`,kw:'less than',ans:[`${v}-${a}`],trap:[`${a}-${v}`],tip:TIP.less}),
+  (v,a)=>({text:`${v} less than ${a}`,kw:'less than',ans:[`${a}-${v}`],trap:[`${v}-${a}`],tip:TIP.less}),
+  (v,a)=>({text:`${a} fewer than ${v}`,kw:'fewer than',ans:[`${v}-${a}`],trap:[`${a}-${v}`],tip:TIP.fewer}),
+  (v,a)=>({text:`subtract ${a} from ${v}`,kw:'from',ans:[`${v}-${a}`],trap:[`${a}-${v}`],tip:TIP.from}),
+  (v,a)=>({text:`subtract ${v} from ${a}`,kw:'from',ans:[`${a}-${v}`],trap:[`${v}-${a}`],tip:TIP.from}),
+  (v,a)=>({text:`${v} decreased by ${a}`,kw:'decreased by',ans:[`${v}-${a}`],trap:[`${a}-${v}`],tip:TIP.order}),
+  (v,a)=>({text:`${a} decreased by ${v}`,kw:'decreased by',ans:[`${a}-${v}`],trap:[`${v}-${a}`],tip:TIP.order}),
+  (v,a)=>({text:`the difference of ${v} and ${a}`,kw:'difference',ans:[`${v}-${a}`],trap:[`${a}-${v}`],tip:TIP.order}),
+  (v,a)=>({text:`${v} take away ${a}`,kw:'take away',ans:[`${v}-${a}`],trap:[`${a}-${v}`],tip:TIP.order}),
+  (v,a)=>({text:`the product of ${a} and ${v}`,kw:'product',ans:[`${a}${v}`],rev:[`${v}${a}`],tip:TIP.coef}),
+  (v,a)=>({text:`${a} times ${v}`,kw:'times',ans:[`${a}${v}`],rev:[`${v}${a}`],tip:TIP.coef}),
+  (v,a)=>({text:`${v} multiplied by ${a}`,kw:'multiplied by',ans:[`${a}${v}`],rev:[`${v}${a}`],tip:TIP.coef}),
+  (v,a)=>({text:`${a} groups of ${v}`,kw:'groups of',ans:[`${a}${v}`],rev:[`${v}${a}`],tip:TIP.coef}),
+  (v)=>({text:`twice a number ${v}`,kw:'twice',ans:[`2${v}`],rev:[`${v}2`],trap:[`${v}+2`],tip:'Twice = times 2.'}),
+  (v)=>({text:`triple a number ${v}`,kw:'triple',ans:[`3${v}`],rev:[`${v}3`],trap:[`${v}+3`],tip:'Triple = times 3.'}),
+  (v,a)=>({text:`the quotient of ${v} and ${a}`,kw:'quotient',ans:[`${v}/${a}`],trap:[`${a}/${v}`],tip:TIP.div}),
+  (v,a)=>({text:`${v} divided by ${a}`,kw:'divided by',ans:[`${v}/${a}`],trap:[`${a}/${v}`],tip:TIP.div}),
+  (v,a)=>({text:`${a} divided by ${v}`,kw:'divided by',ans:[`${a}/${v}`],trap:[`${v}/${a}`],tip:TIP.div}),
+  (v,a)=>({text:`${v} split equally into ${a} groups`,kw:'split equally',ans:[`${v}/${a}`],trap:[`${a}/${v}`],tip:TIP.div}),
+  (v)=>({text:`half of ${v}`,kw:'half',ans:[`${v}/2`],trap:[`2/${v}`,`2${v}`],tip:'Half of = divide by 2.'})
+];
+const c1=x=>`<span class="t1">${x}</span>`,c2=x=>`<span class="t2">${x}</span>`;
+const W2=[
+  /* fix: answer pieces as [text, term] — term 1 = blue (first step), term 2 = orange (second step) */
+  (v,a,b)=>({text:`${a} more than the product of ${b} and ${v}`,html:`${c2(`${a} more than`)} ${c1(`the product of ${b} and ${v}`)}`,fix:[[`${b}${v}`,1],[`+${a}`,2]],kw:'more than',ans:[`${b}${v}+${a}`,`${a}+${b}${v}`],rev:[`${v}${b}+${a}`,`${a}+${v}${b}`],tip:'Product first, then add.'}),
+  (v,a,b)=>({text:`${a} less than ${b} times ${v}`,html:`${c2(`${a} less than`)} ${c1(`${b} times ${v}`)}`,fix:[[`${b}${v}`,1],[`-${a}`,2]],kw:'less than',ans:[`${b}${v}-${a}`],trap:[`${a}-${b}${v}`],rev:[`${v}${b}-${a}`],tip:'Product first, then subtract.'}),
+  (v,a)=>({text:`${a} more than twice ${v}`,html:`${c2(`${a} more than`)} ${c1(`twice ${v}`)}`,fix:[[`2${v}`,1],[`+${a}`,2]],kw:'more than',ans:[`2${v}+${a}`,`${a}+2${v}`],rev:[`${v}2+${a}`,`${a}+${v}2`],tip:'Twice first, then add.'}),
+  (v,a,b)=>({text:`the quotient of ${v} and ${b}, decreased by ${a}`,html:`${c1(`the quotient of ${v} and ${b}`)}, ${c2(`decreased by ${a}`)}`,fix:[[`${v}/${b}`,1],[`-${a}`,2]],kw:'decreased by',ans:[`${v}/${b}-${a}`],trap:[`${b}/${v}-${a}`],tip:'Divide first, then subtract.'}),
+  (v,a,b)=>({text:`${a} less than the quotient of ${v} and ${b}`,html:`${c2(`${a} less than`)} ${c1(`the quotient of ${v} and ${b}`)}`,fix:[[`${v}/${b}`,1],[`-${a}`,2]],kw:'less than',ans:[`${v}/${b}-${a}`],trap:[`${a}-${v}/${b}`],tip:'Divide first, then subtract.'}),
+  (v,a,b)=>({text:`the product of ${b} and ${v}, increased by ${a}`,html:`${c1(`the product of ${b} and ${v}`)}, ${c2(`increased by ${a}`)}`,fix:[[`${b}${v}`,1],[`+${a}`,2]],kw:'increased by',ans:[`${b}${v}+${a}`,`${a}+${b}${v}`],rev:[`${v}${b}+${a}`,`${a}+${v}${b}`],tip:'Product first, then add.'}),
+  (v,a,b)=>({text:`the sum of ${b} times ${v} and ${a}`,html:`${c2('the sum of')} ${c1(`${b} times ${v}`)} ${c2(`and ${a}`)}`,fix:[[`${b}${v}`,1],[`+${a}`,2]],kw:'sum',ans:[`${b}${v}+${a}`,`${a}+${b}${v}`],rev:[`${v}${b}+${a}`,`${a}+${v}${b}`],tip:'Product first, then add.'}),
+  (v,a,b)=>({text:`${b} times ${v}, minus ${a}`,html:`${c1(`${b} times ${v}`)}, ${c2(`minus ${a}`)}`,fix:[[`${b}${v}`,1],[`-${a}`,2]],kw:'minus',ans:[`${b}${v}-${a}`],trap:[`${a}-${b}${v}`],rev:[`${v}${b}-${a}`],tip:'Product first, then subtract.'}),
+  (v,a,b)=>({text:`subtract ${a} from the product of ${b} and ${v}`,html:`${c2(`subtract ${a} from`)} ${c1(`the product of ${b} and ${v}`)}`,fix:[[`${b}${v}`,1],[`-${a}`,2]],kw:'from',ans:[`${b}${v}-${a}`],trap:[`${a}-${b}${v}`],rev:[`${v}${b}-${a}`],tip:'“From” flips the order: product first, then subtract.'}),
+  (v,a,b)=>({text:`the difference of ${b} times ${v} and ${a}`,html:`${c2('the difference of')} ${c1(`${b} times ${v}`)} ${c2(`and ${a}`)}`,fix:[[`${b}${v}`,1],[`-${a}`,2]],kw:'difference',ans:[`${b}${v}-${a}`],trap:[`${a}-${b}${v}`],rev:[`${v}${b}-${a}`],tip:'Keep the order: product first, then subtract.'}),
+  (v,a,b)=>({text:`subtract the product of ${b} and ${v} from ${a}`,html:`${c2('subtract')} ${c1(`the product of ${b} and ${v}`)} ${c2(`from ${a}`)}`,fix:[[`${a}`,2],['-',2],[`${b}${v}`,1]],kw:'from',ans:[`${a}-${b}${v}`],trap:[`${b}${v}-${a}`],rev:[`${a}-${v}${b}`],tip:'“From” flips the order: start with the number after “from.”'}),
+  (v,a,b)=>({text:`${a} decreased by the product of ${b} and ${v}`,html:`${c2(`${a} decreased by`)} ${c1(`the product of ${b} and ${v}`)}`,fix:[[`${a}`,2],['-',2],[`${b}${v}`,1]],kw:'decreased by',ans:[`${a}-${b}${v}`],trap:[`${b}${v}-${a}`],rev:[`${a}-${v}${b}`],tip:'Keep the order: start with the first number.'}),
+  (v,a,b)=>({text:`${a} added to the quotient of ${v} and ${b}`,html:`${c2(`${a} added to`)} ${c1(`the quotient of ${v} and ${b}`)}`,fix:[[`${v}/${b}`,1],[`+${a}`,2]],kw:'added to',ans:[`${v}/${b}+${a}`,`${a}+${v}/${b}`],trap:[`${b}/${v}+${a}`],tip:'Divide first, then add.'}),
+  (v,a,b)=>({text:`${v} divided by ${b}, plus ${a}`,html:`${c1(`${v} divided by ${b}`)}, ${c2(`plus ${a}`)}`,fix:[[`${v}/${b}`,1],[`+${a}`,2]],kw:'plus',ans:[`${v}/${b}+${a}`,`${a}+${v}/${b}`],trap:[`${b}/${v}+${a}`],tip:'Divide first, then add.'}),
+  (v,a,b)=>({text:`${a} minus the quotient of ${v} and ${b}`,html:`${c2(`${a} minus`)} ${c1(`the quotient of ${v} and ${b}`)}`,fix:[[`${a}`,2],['-',2],[`${v}/${b}`,1]],kw:'minus',ans:[`${a}-${v}/${b}`],trap:[`${v}/${b}-${a}`],tip:'Keep the order: start with the first number.'}),
+  (v,a)=>({text:`twice ${v}, decreased by ${a}`,html:`${c1(`twice ${v}`)}, ${c2(`decreased by ${a}`)}`,fix:[[`2${v}`,1],[`-${a}`,2]],kw:'decreased by',ans:[`2${v}-${a}`],trap:[`${a}-2${v}`],rev:[`${v}2-${a}`],tip:'Twice first, then subtract.'}),
+  (v,a)=>({text:`${a} fewer than triple ${v}`,html:`${c2(`${a} fewer than`)} ${c1(`triple ${v}`)}`,fix:[[`3${v}`,1],[`-${a}`,2]],kw:'fewer than',ans:[`3${v}-${a}`],trap:[`${a}-3${v}`],rev:[`${v}3-${a}`],tip:'Triple first, then subtract. “Fewer than” flips the order.'}),
+  (v,a)=>({text:`triple ${v}, increased by ${a}`,html:`${c1(`triple ${v}`)}, ${c2(`increased by ${a}`)}`,fix:[[`3${v}`,1],[`+${a}`,2]],kw:'increased by',ans:[`3${v}+${a}`,`${a}+3${v}`],rev:[`${v}3+${a}`,`${a}+${v}3`],tip:'Triple first, then add.'}),
+  (v,a)=>({text:`${a} minus twice ${v}`,html:`${c2(`${a} minus`)} ${c1(`twice ${v}`)}`,fix:[[`${a}`,2],['-',2],[`2${v}`,1]],kw:'minus',ans:[`${a}-2${v}`],trap:[`2${v}-${a}`],rev:[`${a}-${v}2`],tip:'Keep the order: start with the first number.'}),
+  (v,a)=>({text:`half of ${v}, increased by ${a}`,html:`${c1(`half of ${v}`)}, ${c2(`increased by ${a}`)}`,fix:[[`${v}/2`,1],[`+${a}`,2]],kw:'increased by',ans:[`${v}/2+${a}`,`${a}+${v}/2`],trap:[`2/${v}+${a}`],tip:'Half first, then add.'}),
+  (v,a)=>({text:`${a} less than half of ${v}`,html:`${c2(`${a} less than`)} ${c1(`half of ${v}`)}`,fix:[[`${v}/2`,1],[`-${a}`,2]],kw:'less than',ans:[`${v}/2-${a}`],trap:[`${a}-${v}/2`],tip:'Half first, then subtract. “Less than” flips the order.'})
+];
+function nums(){const a=R(2,25);let b=R(2,9);if(b===a)b=a===2?3:2;return[a,b];}
+function genW2E(){
+  const v=pick(VARS),[a,b]=nums();
+  return mkW2E(pick(Math.random()<.4?W2:W1)(v,a,b));
+}
+function mkW2E(f){
+  return {type:'typed',cat:'w2e',prompt:f.html||f.text,fixParts:f.fix,kw:f.kw,ans:f.ans,trap:f.trap||[],rev:f.rev||[],tip:f.tip,key:'w'+f.text,plain:f.text,answer:f.ans[0],two:!!f.fix};
+}
+
+/* ---------- Expression to words ---------- */
+const E1=[
+  (v,a)=>({expr:`${v}+${a}`,right:[`${v} plus ${a}`,`the sum of ${v} and ${a}`,`${a} more than ${v}`,`${v} increased by ${a}`],wrong:[`${a} less than ${v}`,`the product of ${a} and ${v}`,`${v} divided by ${a}`,`${a} decreased by ${v}`],tip:'Plus, sum, more than = add.'}),
+  (v,a)=>({expr:`${v}-${a}`,right:[`${a} less than ${v}`,`${v} minus ${a}`,`subtract ${a} from ${v}`,`the difference of ${v} and ${a}`,`${v} decreased by ${a}`],wrong:[`${v} less than ${a}`,`subtract ${v} from ${a}`,`${a} decreased by ${v}`,`the sum of ${v} and ${a}`],tip:'“Less than” and “from” flip the order.'}),
+  (v,a)=>({expr:`${a}-${v}`,right:[`${v} less than ${a}`,`${a} minus ${v}`,`subtract ${v} from ${a}`,`${a} decreased by ${v}`],wrong:[`${a} less than ${v}`,`subtract ${a} from ${v}`,`${v} decreased by ${a}`,`${a} more than ${v}`],tip:'“Less than” and “from” flip the order.'}),
+  (v,a)=>({expr:`${a}${v}`,right:[`the product of ${a} and ${v}`,`${a} times ${v}`,`${a} groups of ${v}`],wrong:[`the sum of ${a} and ${v}`,`${a} divided by ${v}`,`${a} more than ${v}`,`the quotient of ${v} and ${a}`],tip:'Number next to a letter = multiply.'}),
+  (v,a)=>({expr:`${v}/${a}`,right:[`the quotient of ${v} and ${a}`,`${v} divided by ${a}`],wrong:[`${a} divided by ${v}`,`the quotient of ${a} and ${v}`,`the product of ${v} and ${a}`,`${a} less than ${v}`],tip:'Top number is being divided.'}),
+  (v,a)=>({expr:`${a}/${v}`,right:[`the quotient of ${a} and ${v}`,`${a} divided by ${v}`],wrong:[`${v} divided by ${a}`,`the quotient of ${v} and ${a}`,`${a} times ${v}`,`${v} less than ${a}`],tip:'Top number is being divided.'})
+];
+const E2=[
+  (v,a,b)=>({expr:`${b}${v}+${a}`,right:[`${a} more than the product of ${b} and ${v}`,`the sum of ${b} times ${v} and ${a}`],wrong:[`${b} more than the product of ${a} and ${v}`,`${a} less than ${b} times ${v}`,`the product of ${b} and ${v} plus ${b}`],tip:'Product first, then what is added.'}),
+  (v,a,b)=>({expr:`${v}/${b}-${a}`,right:[`${a} less than the quotient of ${v} and ${b}`,`${v} divided by ${b}, decreased by ${a}`],wrong:[`the quotient of ${b} and ${v}, decreased by ${a}`,`${a} less than the product of ${b} and ${v}`,`the difference between ${v} and ${a}`,`${a} less than ${v}`],tip:'Quotient first, then subtract.'})
+];
+function genE2W(){
+  const v=pick(VARS),[a,b]=nums();
+  return mkE2W(pick(Math.random()<.2?E2:E1)(v,a,b));
+}
+function mkE2W(f){
+  const correct=pick(f.right);
+  return {type:'mc',cat:'e2w',pclass:'p-expr',prompt:fmt(f.expr),options:shuffle([correct,...shuffle(f.wrong).slice(0,3)]),
+    correct,math:false,cols:2,tip:f.tip,key:'e'+f.expr,plain:f.expr,answer:correct};
+}
+
+/* ---------- Word problems ---------- */
+const STORIES=[
+  ()=>{const a=R(3,9);return{text:`A marathon is n miles long. Frank ran ${a} marathons. How many miles did he run?`,ans:`${a}n`,wrong:[`n+${a}`,`n/${a}`,`${a}-n`]};},
+  ()=>{const a=R(2,6),b=pick(['2.50','3','4','1.75']);return{text:`Each movie ticket costs t dollars and a soda costs $${b}. Hank buys ${a} tickets and 1 soda. How much did he pay?`,ans:`${a}t+${b}`,wrong:[`${b}t+${a}`,`${a}+t+${b}`,`${a}t-${b}`]};},
+  ()=>{const a=R(2,9);return{text:`Carolyn is ${a} years younger than her brother David. David is d years old. How old is Carolyn?`,ans:`d-${a}`,wrong:[`d+${a}`,`${a}-d`,`${a}d`]};},
+  ()=>{const a=5*R(10,18),b=5*R(4,9);return{text:`A TV repairman charges $${a} to visit a house plus $${b} for every hour, h, that he works. What is the total cost?`,ans:`${b}h+${a}`,wrong:[`${a}h+${b}`,`${a}+${b}+h`,`${b}h-${a}`]};},
+  ()=>({text:`Ms. Yu’s class has half as many students as Ms. Rand’s class. Ms. Rand has r students. How many students does Ms. Yu have?`,ans:`r/2`,wrong:[`2r`,`r-2`,`2/r`]}),
+  ()=>{const a=pick([5,10,15,20]);return{text:`Dana’s total at the store was n dollars. She used a coupon for $${a} off. What did she pay?`,ans:`n-${a}`,wrong:[`${a}-n`,`n+${a}`,`n/${a}`]};},
+  ()=>{const a=R(3,6),b=R(2,4);return{text:`Dan has x chickens. Wendy has ${a} times as many chickens as Dan. Then ${b} of Wendy’s chickens ran away. How many chickens does Wendy have now?`,ans:`${a}x-${b}`,wrong:[`${b}x-${a}`,`${a}+x-${b}`,`${a}x+${b}`]};},
+  ()=>{const a=R(2,6),b=R(8,12);return{text:`In the cafeteria, small tables seat ${a} people and large tables seat ${b} people. How many people can sit at x small tables and y large tables?`,ans:`${a}x+${b}y`,wrong:[`${a}y+${b}x`,`${a+b}xy`,`x+y+${a+b}`]};},
+  ()=>{const a=R(2,9);return{text:`Jared finished the race in j seconds. Thais finished ${a} seconds faster than Jared. What was Thais’s time?`,ans:`j-${a}`,wrong:[`j+${a}`,`${a}-j`,`${a}j`]};},
+  ()=>({text:`A rectangle has length L and width W. Which expression gives its perimeter?`,ans:`2L+2W`,wrong:[`LW`,`L+W`,`2LW`]}),
+  ()=>({text:`A rectangle has length L and width W. Which expression gives its area?`,ans:`LW`,wrong:[`2L+2W`,`L+W`,`L/W`]}),
+  ()=>{const a=pick([5,8,12]),b=pick([10,6,4]);return{text:`A bike company charges f dollars per bike plus a one-time shipping fee of $${a}. What is the total cost for ${b} bikes?`,ans:`${b}f+${a}`,wrong:[`${a}f+${b}`,`${b}+f+${a}`,`${b}f-${a}`]};},
+  ()=>({text:`How many dollars are n quarters worth?`,ans:`n/4`,wrong:[`4n`,`n+4`,`4/n`]}),
+  ()=>{const a=R(3,8);return{text:`There are p slices of pizza shared equally among ${a} friends. How many slices does each friend get?`,ans:`p/${a}`,wrong:[`${a}/p`,`${a}p`,`p-${a}`]};},
+  ()=>{const a=R(2,9);return{text:`Maya is ${a} years older than her cousin Leo. Leo is k years old. How old is Maya?`,ans:`k+${a}`,wrong:[`k-${a}`,`${a}-k`,`${a}k`]};},
+  ()=>{const a=pick([5,10,15,20]);return{text:`Kira has s dollars saved. She adds $${a} each week. How much will she have after w weeks?`,ans:`s+${a}w`,wrong:[`${a}s+w`,`s+${a}+w`,`${a}w-s`]};},
+  ()=>{const a=R(3,8),b=pick([4,5,6]);return{text:`Dina bought ${a} bags of chips that cost c dollars each and a gallon of milk that cost $${b}. How much did she spend?`,ans:`${a}c+${b}`,wrong:[`${b}c+${a}`,`${a}+c+${b}`,`${a}c-${b}`]};}
+];
+/* ---------- Class word problems (random student names) ---------- */
+const STUDENTS=['Lucas','Samyra','Divit','Hailey','Dominic','Chase','Theodore','Devin','Katerina','Olivia','Santino','Joaquin','Kyle','Sofia','Charlotte','Joyce','Jackson','Marc','Diego','Noah','Aria','Ariel','Kenzie','Alessandra','Sophie','Leo','Pierce','Leonardo','Matthew','Maxim','Sebastian','Arnav','Mason','Teodoro','Aarav','Aleya','Arielle','Luca','Audrey','Allen','Rena','Srithan','Kya','Nathaniel','Madelyn','Lena','Elanna','Jacob','Aayansh','Rose','Callie','Elizabeth','Madeline','Alice','Jayden','Nicholas','Estaban','Mikael','Mila','Bernardo','Uday','Shay','Maeyah','Quentin','Lorenzo','Thomas','Grisel','Landon','Savana','Leon','Sean','John','Hirav','Gianna','Nick','Odin','Skylar','Rohan','Ved','Tyler','Joshua','Niranjan','Elliana','Samantha','Mehki','Hidayah','Max','Darina','Eden','Andres','Karynli','Garrett','Dylan','Sophia','Eli','Francesca','Jordan','Matyas','Gustavo','Spoorthi','Bradley','Austin','Enzo','Taranveer','Chloe','Jason','Gila','Zoe','Giovanni','Gabriela','Alyssa','Lorelai','Guinevere','Taleen','Everett','Mackenzie','Adam','Liam','Madhuri','Giuliana','Mick','Rhys','Ali','Ayaan','Cindy','Andie','Amelia','Parker','Luciano'];
+const who=()=>pick(STUDENTS);
+const pair=()=>{const a=who();let b=who();while(b===a)b=who();return[a,b];};
+STORIES.push(
+  ()=>{const[n,m]=pair(),a=R(3,12);return{text:`${n} has b baseball cards. ${m} has ${a} more cards than ${n}. How many cards does ${m} have?`,ans:`b+${a}`,wrong:[`b-${a}`,`${a}b`,`${a}-b`]};},
+  ()=>{const n=who(),a=R(4,9);return{text:`${n} reads p pages every night. How many pages will ${n} read in ${a} nights?`,ans:`${a}p`,wrong:[`p+${a}`,`p/${a}`,`${a}/p`]};},
+  ()=>{const n=who(),a=R(10,16);return{text:`${n} earns $${a} an hour babysitting. How much does ${n} earn for h hours?`,ans:`${a}h`,wrong:[`h+${a}`,`h/${a}`,`${a}-h`]};},
+  ()=>{const n=who(),a=R(4,15);return{text:`${n} had c dollars and spent $${a} at the book fair. How much money does ${n} have left?`,ans:`c-${a}`,wrong:[`${a}-c`,`c+${a}`,`${a}c`]};},
+  ()=>{const n=who(),a=R(3,6);return{text:`${n} and ${a-1} friends share a pizza with s slices equally. How many slices does each person get?`,ans:`s/${a}`,wrong:[`s/${a-1}`,`${a}s`,`s-${a}`]};},
+  ()=>{const[n,m]=pair();return{text:`${n} is t years old. ${m}’s older cousin is twice as old as ${n}. How old is the cousin?`,ans:`2t`,wrong:[`t+2`,`t/2`,`t-2`]};},
+  ()=>{const[n,m]=pair();return{text:`${n} and ${m} split m marbles equally. How many marbles does each of them get?`,ans:`m/2`,wrong:[`2m`,`m-2`,`2/m`]};},
+  ()=>{const n=who(),a=R(3,8),b=pick([2,3,4,5]);return{text:`${n} buys ${a} notebooks that cost n dollars each and a pack of pens for $${b}. What is the total cost?`,ans:`${a}n+${b}`,wrong:[`${b}n+${a}`,`${a}+n+${b}`,`${a}n-${b}`]};},
+  ()=>{const n=who(),g=pick([25,30,40,50]),a=R(2,5);return{text:`${n} has a $${g} gift card and buys ${a} songs that cost s dollars each. How much is left on the card?`,ans:`${g}-${a}s`,wrong:[`${a}s-${g}`,`${g}-s-${a}`,`${g}+${a}s`]};},
+  ()=>{const n=who(),a=R(2,6);return{text:`${n} scored p points in the first basketball game. In the second game, ${n} scored ${a} fewer than twice that. How many points did ${n} score in the second game?`,ans:`2p-${a}`,wrong:[`${a}-2p`,`2p+${a}`,`p-${a}`]};},
+  ()=>{const n=who(),a=5*R(4,12),b=R(4,10);return{text:`${n} is saving for a bike. ${n} already has $${a} and saves d dollars each week. How much will ${n} have after ${b} weeks?`,ans:`${a}+${b}d`,wrong:[`${b}+${a}d`,`${a}+d+${b}`,`${a}d+${b}`]};},
+  ()=>{const n=who(),a=pick([15,20,25,30]),b=pick([3,5,8,10]);return{text:`${n}’s phone plan costs $${a} a month plus $${b} for each gigabyte of data, g. What is the bill for one month?`,ans:`${b}g+${a}`,wrong:[`${a}g+${b}`,`${a}+${b}+g`,`${b}g-${a}`]};},
+  ()=>{const n=who(),a=R(2,5),b=R(3,6);return{text:`${n} has x stickers and gives ${a} stickers to each of ${b} friends. How many stickers does ${n} have left?`,ans:`x-${a*b}`,wrong:[`x-${a+b}`,`${a*b}-x`,`${a*b}x`]};},
+  ()=>{const[n,m]=pair(),a=R(2,8);return{text:`${n} downloaded s songs. ${m} downloaded ${a} fewer than half as many songs as ${n}. How many songs did ${m} download?`,ans:`s/2-${a}`,wrong:[`${a}-s/2`,`2s-${a}`,`s/2+${a}`]};},
+  ()=>{const n=who(),a=R(8,15),b=pick([5,10,15]);return{text:`${n} charges $${a} to walk each dog. On Saturday ${n} walks d dogs and also gets a $${b} tip. How much does ${n} make?`,ans:`${a}d+${b}`,wrong:[`${b}d+${a}`,`${a}+d+${b}`,`${a}d-${b}`]};},
+  ()=>{const n=who(),a=R(4,12);return{text:`It was t degrees at noon. By the time ${n} got home from soccer practice, the temperature had dropped ${a} degrees. What was the temperature then?`,ans:`t-${a}`,wrong:[`t+${a}`,`${a}-t`,`${a}t`]};},
+  ()=>{const[n,m]=pair(),a=R(2,4),b=R(3,9);return{text:`${n} baked ${a} batches of cookies with c cookies in each batch. ${m} ate ${b} of them. How many cookies are left?`,ans:`${a}c-${b}`,wrong:[`${b}c-${a}`,`${a}+c-${b}`,`${a}c+${b}`]};},
+  ()=>{const n=who(),a=pick([4,5,6]),b=pick([8,10,12]);return{text:`Tickets to the school play cost $${a} for students and $${b} for adults. ${n} buys s student tickets and a adult tickets. What is the total cost?`,ans:`${a}s+${b}a`,wrong:[`${b}s+${a}a`,`${a}s+${b}`,`${a+b}sa`]};}
+);
+/* ---------- One word problem for every student on the roster ---------- */
+const CLASS=[{"n":"Lucas","t":"Lucas has 7 fewer pencils than a friend who has p pencils. How many pencils does Lucas have?","a":"p-7","w":["7-p","p+7","7p"]},{"n":"Samyra","t":"Samyra has a $50 gift card and buys 2 songs that cost s dollars each. How much is left on the card?","a":"50-2s","w":["2s-50","50-s-2","50+2s"]},{"n":"Divit","t":"Divit has q quarters in a piggy bank. How many dollars is that?","a":"q/4","w":["4q","q+4","4/q"]},{"n":"Vazquez","t":"A water jug holds g gallons. Vazquez’s team drinks 4 gallons at each practice. How much water is left after d practices?","a":"g-4d","w":["4d-g","g+4d","g-d-4"]},{"n":"Hailey","t":"Hailey is saving for a bike. Hailey already has $20 and saves d dollars each week. How much will Hailey have after 8 weeks?","a":"20+8d","w":["8+20d","20+d+8","20d+8"]},{"n":"Dominic","t":"Dominic had e eggs and used 3 of them to make breakfast. Then Dominic bought a dozen more. How many eggs does Dominic have now?","a":"e-3+12","w":["e+3-12","e-3-12","3-e+12"]},{"n":"Chase","t":"Chase has x stickers and gives 4 stickers to each of 6 friends. How many stickers does Chase have left?","a":"x-24","w":["x-10","24-x","24x"]},{"n":"Theodore","t":"Theodore has 5 more trading cards than a friend who has c cards. How many cards does Theodore have?","a":"c+5","w":["c-5","5c","5-c"]},{"n":"Devin","t":"Devin practices piano for m minutes every day. How many minutes does Devin practice in one week?","a":"7m","w":["m+7","m/7","7-m"]},{"n":"Katerina","t":"Katerina’s phone plan costs $15 a month plus $8 for each gigabyte of data, g. What is the bill for one month?","a":"8g+15","w":["15g+8","15+8+g","8g-15"]},{"n":"Olivia","t":"Olivia rides the bus for m minutes and then walks 12 minutes to school. How long is the whole trip?","a":"m+12","w":["m-12","12m","12-m"]},{"n":"Santino","t":"Santino watched t minutes of TV on Saturday and half as much on Sunday. How many minutes did Santino watch on Sunday?","a":"t/2","w":["2t","t-2","2/t"]},{"n":"Joaquin","t":"Joaquin buys 4 shirts that cost s dollars each and uses a $5 coupon. What is the total cost?","a":"4s-5","w":["4s+5","5s-4","5-4s"]},{"n":"Kyle","t":"Kyle is h inches tall. Kyle’s little brother is 3 inches shorter. How tall is the little brother?","a":"h-3","w":["h+3","3-h","3h"]},{"n":"Sofia","t":"Sofia’s family drove m miles each hour for 6 hours. How far did they drive?","a":"6m","w":["m+6","m/6","6-m"]},{"n":"Charlotte","t":"Charlotte sells cups of lemonade for $3 each. Charlotte sells c cups and spent $8 on supplies. How much profit did Charlotte make?","a":"3c-8","w":["8c-3","3c+8","8-3c"]},{"n":"Joyce","t":"Joyce earns k dollars for every lawn mowed. Joyce mows 5 lawns, then spends $9 on gas for the mower. How much money does Joyce have left?","a":"5k-9","w":["9k-5","5k+9","9-5k"]},{"n":"Jackson","t":"Jackson scored p points in the first basketball game. In the second game, Jackson scored 6 fewer than twice that. How many points did Jackson score in the second game?","a":"2p-6","w":["6-2p","2p+6","p-6"]},{"n":"Marc","t":"Marc ran r miles last week. This week Marc ran three times as far. How many miles did Marc run this week?","a":"3r","w":["r+3","r/3","r-3"]},{"n":"Diego","t":"Diego is t years old. Diego’s aunt is 7 years older than 3 times Diego’s age. How old is the aunt?","a":"3t+7","w":["7t+3","3t-7","3+t+7"]},{"n":"Noah","t":"Last year Noah’s class collected c cans for the food drive. This year the goal is 10 more than twice last year’s total. What is the goal?","a":"2c+10","w":["10c+2","2c-10","c+2+10"]},{"n":"Aria","t":"Aria baked 4 batches of cookies with c cookies in each batch. Then Aria’s family ate 6 of them. How many cookies are left?","a":"4c-6","w":["6c-4","4+c-6","4c+6"]},{"n":"Ariel","t":"Ariel and 5 friends share a pizza with s slices equally. How many slices does each person get?","a":"s/6","w":["s/5","6s","s-6"]},{"n":"Kenzie","t":"Kenzie divides b beads equally among 8 bracelets. How many beads go on each bracelet?","a":"b/8","w":["8/b","8b","b-8"]},{"n":"Alessandra","t":"Alessandra had c dollars and spent $12 at the book fair. How much money does Alessandra have left?","a":"c-12","w":["12-c","c+12","12c"]},{"n":"Sophie","t":"Sophie reads p pages every night. How many pages will Sophie read in 7 nights?","a":"7p","w":["p+7","p/7","7/p"]},{"n":"Leo","t":"Leo’s dog weighs d pounds. Leo’s cat weighs 4 pounds less than half as much as the dog. How much does the cat weigh?","a":"d/2-4","w":["4-d/2","2d-4","d/2+4"]},{"n":"Pierce","t":"Tickets to the school play cost $5 for students and $12 for adults. Pierce buys s student tickets and a adult tickets. What is the total cost?","a":"5s+12a","w":["12s+5a","5s+12","17sa"]},{"n":"Leonardo","t":"Leonardo buys 6 notebooks that cost n dollars each and a pack of pens for $4. What is the total cost?","a":"6n+4","w":["4n+6","6+n+4","6n-4"]},{"n":"Matthew","t":"It was t degrees at noon. By the time Matthew got home from practice, the temperature had dropped 8 degrees. What was the temperature then?","a":"t-8","w":["t+8","8-t","8t"]}];
+function genClass(n){
+  const i=n==null?R(0,CLASS.length-1):n,c=CLASS[i];
+  return {type:'mc',cat:'class',pclass:'p-story',prompt:c.t,options:shuffle([c.a,...c.w]),correct:c.a,math:true,cols:4,
+    tip:'',key:'c'+i,plain:c.t,answer:c.a,who:c.n};
+}
+function genStory(n){
+  const i=n==null?R(0,STORIES.length-1):n;
+  let f;for(let g=0;g<40;g++){f=STORIES[i]();if(new Set([f.ans,...f.wrong].map(norm)).size===4)break;}
+  return {type:'mc',cat:'story',pclass:'p-story',prompt:f.text,options:shuffle([f.ans,...f.wrong]),correct:f.ans,math:true,cols:4,
+    tip:'',key:'s'+i,plain:f.text,answer:f.ans};
+}
+
+/* ---------- Vocabulary ---------- */
+const NAMES={coef:'coefficients',var:'variables',const:'constants',op:'operators'};
+const VTIP={
+  coef:'Coefficient = number in front of a letter, with its sign.',
+  var:'Variable = a letter.',
+  const:'Constant = a number by itself, with its sign.',
+  op:'Operators = + − × ÷',
+  terms:'Terms are split by + and −.',
+  eq:'Equation has =. Expression does not.'
+};
+function genVocab(force){
+  const v1=pick(VARS),v2=pick(VARS.filter(x=>x!==v1));
+  const T=v=>[{t:String(R(2,12)),k:'coef'},{t:v,k:'var',join:true}];
+  const K=()=>[{t:String(R(1,20)),k:'const'}];
+  const pats=[()=>[T(v1),K()],()=>[K(),T(v1),K()],()=>[T(v1),T(v2)],()=>[T(v1),T(v2),K()],()=>[K(),T(v1)],()=>[T(v1),K(),K()]];
+  const terms=pick(pats)(),tokens=[];
+  terms.forEach((tm,i)=>{if(i)tokens.push({t:pick(['+','−']),k:'op'});tokens.push(...tm);});
+  const plain=tokens.map(t=>(t.join?'':' ')+t.t).join('').trim();
+  let kind=force||pick(['coef','var','const','op','terms','eq','coef','const']);
+  if(kind==='const'&&!tokens.some(t=>t.k==='const'))kind='coef';
+  const base={cat:'vocab',key:'v'+kind+plain,tip:VTIP[kind]};
+  if(kind==='coef'||kind==='const'){
+    for(let i=tokens.length-2;i>=0;i--){
+      if(tokens[i].k==='op'&&tokens[i+1].k===kind)tokens.splice(i,2,{t:tokens[i].t+tokens[i+1].t,k:kind});
+    }
+  }
+  if(kind==='terms'){
+    const n=terms.length;
+    return {...base,type:'mc',ask:'How many terms?',pclass:'p-vocab',prompt:plain,options:['1','2','3','4','5'],correct:String(n),cols:5,plain:'Terms: '+plain,answer:String(n)};
+  }
+  if(kind==='eq'){
+    const isEq=Math.random()<.5,shown=isEq?`${plain} = ${R(10,60)}`:plain,c=isEq?'Equation':'Expression';
+    return {...base,type:'mc',pclass:'p-vocab',prompt:shown,options:['Expression','Equation'],correct:c,cols:2,short:true,plain:shown,answer:c};
+  }
+  return {...base,type:'tap',ask:`Tap the ${NAMES[kind]}`,tokens,target:kind,plain:`${NAMES[kind]}: ${plain}`,
+    answer:tokens.filter(t=>t.k===kind).map(t=>t.t).join(', ')};
+}
+
+/* ---------- Teacher tracking (hidden from students) ---------- */
+const STORE='expressionsDrillTeacher';
+const CAT={w2e:'Words → expression',e2w:'Expression → words',story:'Word problems',class:'Class word problems',vocab:'Vocabulary'};
+function blank(){return{cats:{w2e:{a:0,c:0},e2w:{a:0,c:0},story:{a:0,c:0},class:{a:0,c:0},vocab:{a:0,c:0}},streak:0,best:0,log:[]};}
+let T=blank();
+try{const s=localStorage.getItem(STORE);if(s){const o=JSON.parse(s);T=Object.assign(blank(),o);T.cats=Object.assign(blank().cats,o.cats||{});}}catch(e){}
+function saveT(){try{localStorage.setItem(STORE,JSON.stringify(T));}catch(e){}}
+function record(q,ok,given){
+  const c=T.cats[q.cat];c.a++;if(ok)c.c++;
+  T.streak=ok?T.streak+1:0;T.best=Math.max(T.best,T.streak);
+  T.log.push({t:Date.now(),cat:q.cat,ok,q:q.plain,given,ans:q.answer});
+  if(T.log.length>300)T.log=T.log.slice(-300);
+  saveT();
+}
+function openTeacher(){
+  const rows=Object.keys(CAT).map(k=>{const c=T.cats[k];return `<tr><td>${CAT[k]}</td><td>${c.a}</td><td>${c.c}</td><td>${c.a?Math.round(100*c.c/c.a)+'%':'–'}</td></tr>`;}).join('');
+  const A=Object.values(T.cats).reduce((s,c)=>s+c.a,0),C=Object.values(T.cats).reduce((s,c)=>s+c.c,0);
+  const miss=T.log.filter(l=>!l.ok).slice(-30).reverse();
+  $('#tdlg').innerHTML=`<h2>Teacher stats</h2>
+    <table><tr><th></th><th>Attempted</th><th>Correct</th><th>Accuracy</th></tr>${rows}
+    <tr><td><b>Total</b></td><td><b>${A}</b></td><td><b>${C}</b></td><td><b>${A?Math.round(100*C/A)+'%':'–'}</b></td></tr></table>
+    <p>Current streak: <b>${T.streak}</b> &nbsp; Best streak: <b>${T.best}</b></p>
+    ${miss.length?`<h2>Recent misses</h2><table class="miss"><tr><th>Problem</th><th>Typed / chose</th><th>Answer</th></tr>${miss.map(m=>`<tr><td>${esc(m.q)}</td><td>${esc(m.given)}</td><td>${esc(m.ans)}</td></tr>`).join('')}</table>`:''}
+    <div class="tbtns"><button class="go ghost" id="tReset">Reset</button><button class="go" id="tClose">Close</button></div>`;
+  $('#teacher').hidden=false;$('#tClose').focus();
+  $('#tClose').onclick=closeTeacher;
+  $('#tReset').onclick=()=>{if(confirm('Clear all tracked data?')){T=blank();saveT();openTeacher();}};
+}
+function closeTeacher(){$('#teacher').hidden=true;focusFirst();}
+
+/* ---------- Engine ---------- */
+/* Equal mix: every section comes up once in each shuffled round of five,
+   and the same section never shows twice in a row across rounds. */
+const SECTIONS={w2e:genW2E,e2w:genE2W,story:()=>genStory(),class:()=>genClass(),vocab:()=>genVocab()};
+let bag=[],lastSec='';
+function nextSection(){
+  if(!bag.length){
+    const keys=Object.keys(SECTIONS);
+    do{bag=shuffle(keys);}while(bag[0]===lastSec);
+  }
+  lastSec=bag.shift();return lastSec;
+}
+const GEN={mix:()=>SECTIONS[nextSection()]()};
+const S={tiles:[],placed:[],buf:'',bufT:0,mode:'mix',q:null,done:false,sel:new Set(),solved:0,recent:[],timer:0,hist:[],pos:-1};
+
+function previewList(mode){
+  const w=()=>[...W1,...W2].map(f=>{const[a,b]=nums();return mkW2E(f(pick(VARS),a,b));});
+  const e=()=>[...E1,...E2].map(f=>{const[a,b]=nums();return mkE2W(f(pick(VARS),a,b));});
+  const st=()=>STORIES.map((_,i)=>genStory(i));
+  const cl=()=>CLASS.map((_,i)=>genClass(i));
+  const vo=()=>['coef','var','const','op','terms','eq'].map(k=>{let q;for(let g=0;g<40;g++){q=genVocab(k);if(q.key.startsWith('v'+k))break;}return q;});
+  return {w2e:w,e2w:e,story:st,class:cl,vocab:vo,mix:()=>[...w(),...e(),...st(),...cl(),...vo()]}[mode]();
+}
+function gen(){
+  const sec=nextSection();
+  let q;for(let g=0;g<60;g++){q=SECTIONS[sec]();if(!S.recent.includes(q.key))break;}
+  S.recent.push(q.key);if(S.recent.length>25)S.recent.shift();
+  return q;
+}
+function updateCount(){
+  if(PREVIEW){$('#count').innerHTML=`${S.q&&S.q.two?'Two-step &nbsp;':''}<b>${S.pos+1}</b> of ${S.hist.length}`;return;}
+  $('#count').innerHTML=S.solved<GOAL?`Correct <b>${S.solved}</b> <span class="goal">/ ${GOAL}</span>`:`Correct <b>${S.solved}</b>`;
+  $('#count').classList.toggle('met',S.solved>=GOAL);
+}
+function next(){
+  clearTimeout(S.timer);
+  if(PREVIEW){
+    if(S.pos<S.hist.length-1)S.pos++;else return;
+    S.q=S.hist[S.pos];
+  }else S.q=gen();
+  render();
+}
+function prev(){if(PREVIEW&&S.pos>0){S.pos--;S.q=S.hist[S.pos];render();}}
+function restart(){S.recent=[];S.hist=PREVIEW?previewList(S.mode):[];S.pos=-1;next();}
+
+function render(){
+  const q=S.q;S.done=PREVIEW;S.sel=new Set();
+  let h=q.ask?`<div class="ask">${q.ask}</div>`:'';
+  if(q.type==='typed'){
+    S.tiles=PREVIEW?(q.fixParts?q.fixParts.flatMap(([p,c])=>tokenize(p).map(v=>({v,c}))):tokenize(q.ans[0]).map(v=>({v}))).map((t,i)=>({id:i,...t})):tilesFor(q);
+    S.placed=PREVIEW?S.tiles.map(t=>t.id):[];S.buf='';
+    h+=`<div class="line"><span id="prompt">${PREVIEW?hl(q.prompt,q.kw):q.prompt}</span><span class="eq">=</span><div class="zone${PREVIEW?' ok done':''}" id="zone" tabindex="0" aria-label="Your expression"></div><span class="fix" id="fix"></span></div>
+      ${PREVIEW?'':'<div class="bank" id="bank"></div>'}`;
+  }else if(q.type==='mc'){
+    h+=`<div class="${q.pclass}" id="prompt">${q.prompt}</div>
+      <div class="opts c${q.cols}${q.short?' short':''}">${q.options.map((o,i)=>`<button class="opt${q.math?' math':''}${PREVIEW&&o===q.correct?' ok':''}" data-i="${i}"${PREVIEW?' disabled':''}>${q.math?fmt(o):o}</button>`).join('')}</div>`;
+  }else{
+    h+=`<div class="tokens">${q.tokens.map((t,i)=>`<button class="tok${PREVIEW&&t.k===q.target?' ok':''}" data-i="${i}" aria-pressed="false"${PREVIEW?' disabled':''}${t.join?' style="margin-left:-.06em"':''}>${t.t}</button>`).join('')}</div>`;
+  }
+  h+=`<div class="fb" id="fb" role="status" aria-live="polite"></div>`;
+  const acts=PREVIEW
+    ?`<button class="go ghost" id="back" aria-label="Previous"${S.pos>0?'':' disabled'}>‹</button><button class="go" id="fwd" aria-label="Next"${S.pos<S.hist.length-1?'':' disabled'}>›</button>`
+    :`<button class="go" id="go"${q.type==='mc'?' hidden':''}>Check</button>`;
+  $('#stage').innerHTML=`<div class="card">${h}</div><div class="actions">${acts}</div>`;
+
+  if(PREVIEW){
+    $('#back').onclick=prev;$('#fwd').onclick=next;
+  }else{
+    if(q.type==='mc')document.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>checkMC(+b.dataset.i)));
+    if(q.type==='tap')document.querySelectorAll('.tok').forEach(b=>b.addEventListener('click',()=>toggleTok(b)));
+    $('#go').onclick=()=>{S.done?next():check();};
+  }
+  if(q.type==='typed')drawTiles();
+  updateCount();
+  focusFirst();
+}
+function focusFirst(){
+  if(!$('#teacher').hidden||turninOpen())return;
+  const zone=$('#zone');
+  if(zone&&!S.done){zone.focus({preventScroll:true});return;}
+  if(S.q&&S.q.type==='tap'&&!S.done){const t=$('.tok');if(t){t.focus();return;}}
+  if(PREVIEW){$('#fwd').focus();return;}
+  if(S.done){const g=$('#go');if(g&&!g.hidden){g.focus();return;}}
+  $('#stage').focus({preventScroll:true});
+}
+function toggleTok(b){
+  if(S.done)return;const i=+b.dataset.i;
+  if(S.sel.has(i)){S.sel.delete(i);b.classList.remove('sel');b.setAttribute('aria-pressed','false');}
+  else{S.sel.add(i);b.classList.add('sel');b.setAttribute('aria-pressed','true');}
+  const q=S.q,target=q.tokens.map((t,i)=>t.k===q.target?i:-1).filter(i=>i>=0);
+  if(target.length===S.sel.size&&target.every(i=>S.sel.has(i)))check();
+}
+function finish(ok,tip,given){
+  const q=S.q;S.done=true;record(q,ok,given);
+  records.push({cat:q.cat,q:q.plain,a:q.answer,given,ok});
+  if(q.kw)$('#prompt').innerHTML=hl(q.prompt,q.kw);
+  if(ok){
+    S.solved++;updateCount();
+    if(S.solved===GOAL&&!popped){popped=true;S.timer=setTimeout(()=>{next();showTurnIn(true);},700);}
+    else S.timer=setTimeout(next,650);
+    const g=$('#go');g.hidden=true;
+  }else{
+    $('#fb').textContent=tip||'';
+    const g=$('#go');g.hidden=false;g.textContent='Next';g.focus();
+  }
+}
+function check(){
+  const q=S.q;
+  if(q.type==='typed'){
+    flushBuf();
+    const zone=$('#zone');
+    if(!S.placed.length){zone.focus();return;}
+    const raw=S.placed.map(id=>S.tiles[id].v).join('');
+    const n=norm(raw);
+    const ok=q.ans.map(norm).includes(n);
+    zone.classList.add(ok?'ok':'no','done');
+    if(ok)return finish(true,'',raw);
+    $('#fix').innerHTML=q.fixParts?q.fixParts.map(([p,t])=>`<span class="t${t}">${fmt(p)}</span>`).join(' '):fmt(q.ans[0]);
+    const tip=q.rev.map(norm).includes(n)?TIP.coef:q.tip;
+    return finish(false,tip,raw);
+  }
+  if(q.type==='tap'){
+    if(!S.sel.size)return;
+    const target=new Set(q.tokens.map((t,i)=>t.k===q.target?i:-1).filter(i=>i>=0));
+    const ok=target.size===S.sel.size&&[...target].every(i=>S.sel.has(i));
+    document.querySelectorAll('.tok').forEach(b=>{
+      const i=+b.dataset.i;b.disabled=true;b.classList.remove('sel');
+      if(target.has(i))b.classList.add('ok');else if(S.sel.has(i))b.classList.add('no');
+    });
+    return finish(ok,q.tip,[...S.sel].sort((a,b)=>a-b).map(i=>q.tokens[i].t).join(', '));
+  }
+}
+function checkMC(i){
+  if(S.done)return;
+  const q=S.q,chosen=q.options[i],ok=chosen===q.correct;
+  document.querySelectorAll('.opt').forEach(b=>{
+    const o=q.options[+b.dataset.i];b.disabled=true;
+    if(o===q.correct)b.classList.add('ok');else if(+b.dataset.i===i)b.classList.add('no');
+  });
+  finish(ok,q.tip,chosen);
+}
+
+/* ---------- Drag and drop tiles ---------- */
+const SHOW={'-':'−','/':'÷'};
+function tokenize(s){return String(s).match(/\d+(?:\.\d+)?|[A-Za-z]|[+\-\/]/g)||[];}
+function tilesFor(q){
+  const t=tokenize(q.ans[0]);
+  ['+','-','/'].forEach(o=>{if(!t.includes(o))t.push(o);});
+  return shuffle(t).map((v,i)=>({id:i,v}));
+}
+const tileHTML=t=>`<div class="tile${t.c?' t'+t.c:''}" data-id="${t.id}">${SHOW[t.v]||t.v}</div>`;
+function drawTiles(){
+  const zone=$('#zone'),bank=$('#bank');
+  zone.innerHTML=S.placed.map(id=>tileHTML(S.tiles[id])).join('');
+  if(bank)bank.innerHTML=S.tiles.map(t=>tileHTML(t).replace('class="tile"',`class="tile${S.placed.includes(t.id)?' gone':''}"`)).join('');
+  if(!PREVIEW&&!S.done&&!S.buf&&S.placed.length){
+    const n=norm(S.placed.map(id=>S.tiles[id].v).join(''));
+    if(S.q.ans.map(norm).includes(n))check();
+  }
+}
+function place(id,idx){
+  S.placed=S.placed.filter(x=>x!==id);
+  if(idx==null||idx>S.placed.length)idx=S.placed.length;
+  S.placed.splice(idx,0,id);
+}
+function unplace(id){S.placed=S.placed.filter(x=>x!==id);}
+function avail(){return S.tiles.filter(t=>!S.placed.includes(t.id));}
+function insertIndex(x,y,skipId){
+  const kids=[...document.querySelectorAll('#zone .tile')].filter(el=>+el.dataset.id!==skipId);
+  for(let i=0;i<kids.length;i++){const r=kids[i].getBoundingClientRect();if(y<r.bottom&&x<r.left+r.width/2)return i;}
+  return kids.length;
+}
+function inside(el,x,y){const r=el.getBoundingClientRect();const p=24;return x>r.left-p&&x<r.right+p&&y>r.top-p&&y<r.bottom+p;}
+let drag=null;
+document.addEventListener('pointerdown',e=>{
+  const el=e.target.closest&&e.target.closest('.tile');
+  if(!el||PREVIEW||S.done||turninOpen()||el.classList.contains('gone')||el.classList.contains('ghost'))return;
+  e.preventDefault();
+  drag={id:+el.dataset.id,from:el.closest('#zone')?'zone':'bank',x0:e.clientX,y0:e.clientY,el,ghost:null,dx:0,dy:0};
+});
+document.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  if(!drag.ghost){
+    if(Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)return;
+    const r=drag.el.getBoundingClientRect(),g=drag.el.cloneNode(true);
+    g.classList.add('ghost');g.style.fontSize=getComputedStyle(drag.el).fontSize;
+    g.style.width=r.width+'px';g.style.height=r.height+'px';
+    drag.dx=drag.x0-r.left;drag.dy=drag.y0-r.top;
+    document.body.appendChild(g);drag.ghost=g;drag.el.classList.add('dragging');
+  }
+  drag.ghost.style.transform=`translate(${e.clientX-drag.dx}px,${e.clientY-drag.dy}px)`;
+  $('#zone').classList.toggle('over',inside($('#zone'),e.clientX,e.clientY));
+});
+function endDrag(e){
+  if(!drag)return;const d=drag;drag=null;
+  const zone=$('#zone');zone.classList.remove('over');
+  if(!d.ghost){ if(d.from==='bank')place(d.id);else unplace(d.id); }
+  else{
+    d.ghost.remove();
+    if(e&&inside(zone,e.clientX,e.clientY))place(d.id,insertIndex(e.clientX,e.clientY,d.id));
+    else if(d.from==='zone')unplace(d.id);
+  }
+  drawTiles();zone.focus({preventScroll:true});
+}
+document.addEventListener('pointerup',endDrag);
+document.addEventListener('pointercancel',()=>endDrag(null));
+function flushBuf(){
+  clearTimeout(S.bufT);
+  if(S.buf){const ex=avail().find(t=>t.v===S.buf);if(ex){place(ex.id);drawTiles();}S.buf='';}
+}
+function typeTile(k){
+  if(/^[0-9.]$/.test(k)){
+    S.buf+=k;clearTimeout(S.bufT);
+    const a=avail(),ex=a.find(t=>t.v===S.buf),longer=a.some(t=>t.v!==S.buf&&t.v.startsWith(S.buf));
+    if(ex&&!longer){place(ex.id);S.buf='';drawTiles();}
+    else if(!ex&&!longer)S.buf='';
+    else S.bufT=setTimeout(flushBuf,700);
+    return true;
+  }
+  const v={'−':'-','÷':'/'}[k]||k;
+  if(!/^[A-Za-z+\-\/]$/.test(v))return false;
+  flushBuf();
+  const t=avail().find(t=>t.v.toLowerCase()===v.toLowerCase());
+  if(t){place(t.id);drawTiles();}
+  return true;
+}
+
+/* ---------- Keyboard ---------- */
+document.addEventListener('keydown',e=>{
+  if(turninOpen()){if(e.key==='Escape')backToPractice();return;}
+  if(!$('#teacher').hidden){if(e.key==='Escape')closeTeacher();return;}
+  if(e.ctrlKey&&e.shiftKey&&(e.key==='Y'||e.key==='y')){e.preventDefault();openTeacher();return;}
+  const a=document.activeElement;
+  if(e.key==='Enter'){
+    if(a&&(a.id==='tiLink'||a.id==='keyBtn'||a.id==='back')){return;}
+    e.preventDefault();
+    if(S.done){next();return;}
+    if(a&&a.classList.contains('opt')){checkMC(+a.dataset.i);return;}
+    if(S.q.type!=='mc')check();
+    return;
+  }
+  if(PREVIEW){
+    if(e.key==='ArrowRight'){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'){e.preventDefault();prev();}
+    return;
+  }
+  if(S.q&&S.q.type==='typed'&&!S.done&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    if(e.key==='Backspace'){e.preventDefault();flushBuf();S.placed.pop();drawTiles();return;}
+    if(e.key==='Escape'){S.placed=[];S.buf='';drawTiles();return;}
+    if(e.key.length===1&&typeTile(e.key)){e.preventDefault();return;}
+  }
+  if(S.q&&S.q.type==='mc'&&!S.done&&/^[1-5]$/.test(e.key)&&!(a&&a.tagName==='INPUT')){
+    const i=+e.key-1;if(i<S.q.options.length)checkMC(i);
+  }
+});
+
+/* ---------- Turning it in ----------
+   50 right on the first try pops up the turn-in page once. The Turn in
+   button is always up, so anyone can send what they have at any time, and
+   sending again later sends the newer count. */
+const GOAL=50,DRILL_NAME='Writing Expressions';
+let records=[],popped=false,submitted=false,submittedAt=0;
+const correctCount=()=>records.filter(r=>r.ok).length;
+function turninOpen(){return !$('#turnin').hidden;}
+function showTurnIn(auto){
+  clearTimeout(S.timer);
+  const done=records.length,right=correctCount();
+  $('#ti-title').textContent=auto?`${GOAL} correct — nice work!`:(right>=GOAL?`${right} correct`:'Turn in your work');
+  $('#ti-sub').textContent=(right>=GOAL?'':`You have ${right} of ${GOAL} correct so far. `)
+    +'Enter your period and name to turn in your work. After that you can keep practicing as long as you like.';
+  $('#ti-recap').innerHTML=`<div>Correct the first time<b>${right}</b></div><div>Missed<b>${done-right}</b></div>`
+    +`<div>Accuracy<b>${done?Math.round(100*right/done)+'%':'–'}</b></div>`;
+  const cats=Object.keys(CAT).map(k=>{const r=records.filter(x=>x.cat===k),c=r.filter(x=>x.ok).length;
+    return r.length?`<tr><td>${CAT[k]}</td><td>${c} / ${r.length}</td></tr>`:'';}).join('');
+  $('#ti-cats').innerHTML=cats?`<table class="ti-cats"><tr><th>Section</th><th>Correct</th></tr>${cats}</table>`:'';
+  const more=submitted&&right!==submittedAt;
+  $('#gform').hidden=submitted&&!more;
+  if(more){
+    $('#ti-feedback').innerHTML=`<span class="nt">You turned in ${submittedAt} correct — you have ${right} now. Send it again and the newer one counts.</span>`;
+    $('#ti-submit').textContent='Send updated results';
+  }else if(submitted){
+    $('#ti-feedback').innerHTML=`<span class="ok">Already turned in with ${submittedAt} correct.</span>`;
+  }else{
+    $('#ti-feedback').innerHTML='';$('#ti-submit').textContent='Submit Results';
+  }
+  $('#formScore').value=right;
+  $('#turnin').hidden=false;$('#turnin').scrollTop=0;
+  setTimeout(()=>{const f=submitted?$('#ti-submit'):$('#studentPeriod');if(!$('#gform').hidden)f.focus();else $('#ti-back').focus();},50);
+}
+function backToPractice(){
+  $('#turnin').hidden=true;
+  if(S.done)next();else focusFirst();
+}
+window.onHiddenFrameLoad=function(){
+  if(!submitted)return;
+  $('#ti-feedback').innerHTML='<span class="ok">Successfully submitted. You can close this page, or keep practicing.</span>';
+  $('#gform').hidden=true;
+  $('#tiLink').classList.add('sent');$('#tiLink').textContent='Turned in ✓';
+};
+function nameCheck(){
+  const ln=$('#lastName').value.trim(),fn=$('#firstName').value.trim();
+  const row=(t,v)=>`<div class="r"><span class="t">${t}</span><span class="v${v?'':' empty'}">${v?esc(v):'—'}</span></div>`;
+  $('#nameCheck').innerHTML='<div class="hd">This is what will be sent — check it is the right way round:</div>'
+    +row('Last name',ln)+row('First name',fn)+row('Roll call',ln&&fn?ln+', '+fn:'');
+}
+['#lastName','#firstName'].forEach(id=>$(id).addEventListener('input',nameCheck));
+nameCheck();
+$('#gform').addEventListener('submit',()=>{
+  const ln=$('#lastName').value.trim(),fn=$('#firstName').value.trim(),right=correctCount();
+  $('#studentName').value=`Period ${$('#studentPeriod').value.trim()} — ${ln} — ${fn} — ${right} correct first try — ${DRILL_NAME} (${records.length} attempted)`;
+  $('#formScore').value=right;
+  submitted=true;submittedAt=right;
+});
+$('#ti-back').addEventListener('click',backToPractice);
+$('#tiLink').addEventListener('click',()=>showTurnIn(false));
+$('#keyBtn').addEventListener('click',()=>{
+  const k=$('#key'),open=k.hidden;k.hidden=!open;
+  $('#keyBtn').setAttribute('aria-expanded',String(open));
+  document.body.classList.toggle('key-open',open);
+  focusFirst();
+});
+$('#count').addEventListener('dblclick',()=>{if(!PREVIEW)openTeacher();});
+
+restart();
+})();
+</script>
+</body>
+</html>
