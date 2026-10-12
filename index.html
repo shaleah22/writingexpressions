@@ -348,9 +348,11 @@ function genE2W(){
   return mkE2W(pick(Math.random()<.2?E2:E1)(v,a,b));
 }
 function mkE2W(f){
-  const correct=pick(f.right);
-  return {type:'mc',cat:'e2w',pclass:'p-expr',prompt:fmt(f.expr),options:shuffle([correct,...shuffle(f.wrong).slice(0,3)]),
-    correct,math:false,cols:2,tip:f.tip,key:'e'+f.expr,plain:f.expr,answer:correct};
+  /* Show one phrase; the student builds the expression from tiles.
+     Checked by value, so g + 21 and 21 + g both count, but 21 − g does not. */
+  const phrase=pick(f.right);
+  return {type:'typed',cat:'e2w',prompt:phrase,ans:[f.expr],trap:[],rev:[],equiv:true,
+    tip:f.tip,key:'e'+phrase,plain:phrase,answer:f.expr};
 }
 
 /* ---------- Word problems ---------- */
@@ -399,16 +401,64 @@ STORIES.push(
 );
 /* ---------- One word problem for every student on the roster ---------- */
 const CLASS=[{"n":"Lucas","t":"Lucas has 7 fewer pencils than a friend who has p pencils. How many pencils does Lucas have?","a":"p-7","w":["7-p","p+7","7p"]},{"n":"Samyra","t":"Samyra has a $50 gift card and buys 2 songs that cost s dollars each. How much is left on the card?","a":"50-2s","w":["2s-50","50-s-2","50+2s"]},{"n":"Divit","t":"Divit has q quarters in a piggy bank. How many dollars is that?","a":"q/4","w":["4q","q+4","4/q"]},{"n":"Vazquez","t":"A water jug holds g gallons. Vazquez’s team drinks 4 gallons at each practice. How much water is left after d practices?","a":"g-4d","w":["4d-g","g+4d","g-d-4"]},{"n":"Hailey","t":"Hailey is saving for a bike. Hailey already has $20 and saves d dollars each week. How much will Hailey have after 8 weeks?","a":"20+8d","w":["8+20d","20+d+8","20d+8"]},{"n":"Dominic","t":"Dominic had e eggs and used 3 of them to make breakfast. Then Dominic bought a dozen more. How many eggs does Dominic have now?","a":"e-3+12","w":["e+3-12","e-3-12","3-e+12"]},{"n":"Chase","t":"Chase has x stickers and gives 4 stickers to each of 6 friends. How many stickers does Chase have left?","a":"x-24","w":["x-10","24-x","24x"]},{"n":"Theodore","t":"Theodore has 5 more trading cards than a friend who has c cards. How many cards does Theodore have?","a":"c+5","w":["c-5","5c","5-c"]},{"n":"Devin","t":"Devin practices piano for m minutes every day. How many minutes does Devin practice in one week?","a":"7m","w":["m+7","m/7","7-m"]},{"n":"Katerina","t":"Katerina’s phone plan costs $15 a month plus $8 for each gigabyte of data, g. What is the bill for one month?","a":"8g+15","w":["15g+8","15+8+g","8g-15"]},{"n":"Olivia","t":"Olivia rides the bus for m minutes and then walks 12 minutes to school. How long is the whole trip?","a":"m+12","w":["m-12","12m","12-m"]},{"n":"Santino","t":"Santino watched t minutes of TV on Saturday and half as much on Sunday. How many minutes did Santino watch on Sunday?","a":"t/2","w":["2t","t-2","2/t"]},{"n":"Joaquin","t":"Joaquin buys 4 shirts that cost s dollars each and uses a $5 coupon. What is the total cost?","a":"4s-5","w":["4s+5","5s-4","5-4s"]},{"n":"Kyle","t":"Kyle is h inches tall. Kyle’s little brother is 3 inches shorter. How tall is the little brother?","a":"h-3","w":["h+3","3-h","3h"]},{"n":"Sofia","t":"Sofia’s family drove m miles each hour for 6 hours. How far did they drive?","a":"6m","w":["m+6","m/6","6-m"]},{"n":"Charlotte","t":"Charlotte sells cups of lemonade for $3 each. Charlotte sells c cups and spent $8 on supplies. How much profit did Charlotte make?","a":"3c-8","w":["8c-3","3c+8","8-3c"]},{"n":"Joyce","t":"Joyce earns k dollars for every lawn mowed. Joyce mows 5 lawns, then spends $9 on gas for the mower. How much money does Joyce have left?","a":"5k-9","w":["9k-5","5k+9","9-5k"]},{"n":"Jackson","t":"Jackson scored p points in the first basketball game. In the second game, Jackson scored 6 fewer than twice that. How many points did Jackson score in the second game?","a":"2p-6","w":["6-2p","2p+6","p-6"]},{"n":"Marc","t":"Marc ran r miles last week. This week Marc ran three times as far. How many miles did Marc run this week?","a":"3r","w":["r+3","r/3","r-3"]},{"n":"Diego","t":"Diego is t years old. Diego’s aunt is 7 years older than 3 times Diego’s age. How old is the aunt?","a":"3t+7","w":["7t+3","3t-7","3+t+7"]},{"n":"Noah","t":"Last year Noah’s class collected c cans for the food drive. This year the goal is 10 more than twice last year’s total. What is the goal?","a":"2c+10","w":["10c+2","2c-10","c+2+10"]},{"n":"Aria","t":"Aria baked 4 batches of cookies with c cookies in each batch. Then Aria’s family ate 6 of them. How many cookies are left?","a":"4c-6","w":["6c-4","4+c-6","4c+6"]},{"n":"Ariel","t":"Ariel and 5 friends share a pizza with s slices equally. How many slices does each person get?","a":"s/6","w":["s/5","6s","s-6"]},{"n":"Kenzie","t":"Kenzie divides b beads equally among 8 bracelets. How many beads go on each bracelet?","a":"b/8","w":["8/b","8b","b-8"]},{"n":"Alessandra","t":"Alessandra had c dollars and spent $12 at the book fair. How much money does Alessandra have left?","a":"c-12","w":["12-c","c+12","12c"]},{"n":"Sophie","t":"Sophie reads p pages every night. How many pages will Sophie read in 7 nights?","a":"7p","w":["p+7","p/7","7/p"]},{"n":"Leo","t":"Leo’s dog weighs d pounds. Leo’s cat weighs 4 pounds less than half as much as the dog. How much does the cat weigh?","a":"d/2-4","w":["4-d/2","2d-4","d/2+4"]},{"n":"Pierce","t":"Tickets to the school play cost $5 for students and $12 for adults. Pierce buys s student tickets and a adult tickets. What is the total cost?","a":"5s+12a","w":["12s+5a","5s+12","17sa"]},{"n":"Leonardo","t":"Leonardo buys 6 notebooks that cost n dollars each and a pack of pens for $4. What is the total cost?","a":"6n+4","w":["4n+6","6+n+4","6n-4"]},{"n":"Matthew","t":"It was t degrees at noon. By the time Matthew got home from practice, the temperature had dropped 8 degrees. What was the temperature then?","a":"t-8","w":["t+8","8-t","8t"]}];
+/* Word problems are built from tiles, not picked. Numbers from the old wrong
+   choices come along as extra tiles (e.g. "5" for "Ariel and 5 friends"),
+   so the common mistakes can still be made, and must be spotted. */
+function extraTiles(ans,wrong){
+  const have=tokenize(ans),out=[];
+  wrong.forEach(w=>tokenize(w).forEach(t=>{if(/^\d/.test(t)&&!have.includes(t)&&!out.includes(t))out.push(t);}));
+  return out.slice(0,2);
+}
+function mkBuild(cat,key,text,ans,wrong){
+  return {type:'typed',cat,ask:'Build the expression',pclass:'p-story',prompt:text,ans:[ans],trap:wrong,rev:[],equiv:true,
+    extra:extraTiles(ans,wrong),tip:'',key,plain:text,answer:ans};
+}
 function genClass(n){
   const i=n==null?R(0,CLASS.length-1):n,c=CLASS[i];
-  return {type:'mc',cat:'class',pclass:'p-story',prompt:c.t,options:shuffle([c.a,...c.w]),correct:c.a,math:true,cols:4,
-    tip:'',key:'c'+i,plain:c.t,answer:c.a,who:c.n};
+  return mkBuild('class','c'+i,c.t,c.a,c.w);
 }
 function genStory(n){
   const i=n==null?R(0,STORIES.length-1):n;
   let f;for(let g=0;g<40;g++){f=STORIES[i]();if(new Set([f.ans,...f.wrong].map(norm)).size===4)break;}
-  return {type:'mc',cat:'story',pclass:'p-story',prompt:f.text,options:shuffle([f.ans,...f.wrong]),correct:f.ans,math:true,cols:4,
-    tip:'',key:'s'+i,plain:f.text,answer:f.ans};
+  return mkBuild('story','s'+i,f.text,f.ans,f.wrong);
+}
+
+/* Checks a built expression by value, so any correct order counts:
+   8d+20 or 20+8d, e-3+12 or e+12-3. Number must still come before letter. */
+const isNum=t=>/^\d/.test(t),isVar=t=>/^[A-Za-z]$/.test(t);
+function valueOf(toks,vals){
+  let i=0;
+  const prod=()=>{let v=1,any=false;while(i<toks.length&&!['+','-','/'].includes(toks[i])){const t=toks[i++];v*=isNum(t)?parseFloat(t):vals[t];any=true;}if(!any)throw 0;return v;};
+  const term=()=>{let v=prod();while(toks[i]==='/'){i++;v/=prod();}return v;};
+  try{
+    let s=1;if(toks[0]==='-'){s=-1;i=1;}
+    let v=s*term();
+    while(i<toks.length){const op=toks[i++];if(op!=='+'&&op!=='-')throw 0;const t=term();v=op==='+'?v+t:v-t;}
+    return v;
+  }catch(e){return NaN;}
+}
+function sameValue(toks,ans){
+  const b=tokenize(ans);
+  for(let k=0;k<4;k++){
+    const vals={};'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(c=>vals[c]=1.13+Math.random()*8.31);
+    const x=valueOf(toks,vals),y=valueOf(b,vals);
+    if(!isFinite(x)||Math.abs(x-y)>1e-7*Math.max(1,Math.abs(y)))return false;
+  }
+  return true;
+}
+/* {ok, rev}: rev = right value but a letter written before its number (n3) */
+function judge(q,toks){
+  if(!q.equiv){
+    const n=norm(toks.join(''));
+    return {ok:q.ans.map(norm).includes(n),rev:q.rev.map(norm).includes(n)};
+  }
+  let numNum=false,letNum=false;
+  for(let i=1;i<toks.length;i++){
+    if(isNum(toks[i])&&isNum(toks[i-1]))numNum=true;
+    if(isNum(toks[i])&&isVar(toks[i-1]))letNum=true;
+  }
+  const same=!numNum&&sameValue(toks,q.ans[0]);
+  return {ok:same&&!letNum,rev:same&&letNum};
 }
 
 /* ---------- Vocabulary ---------- */
@@ -418,8 +468,7 @@ const VTIP={
   var:'Variable = a letter.',
   const:'Constant = a number by itself, with its sign.',
   op:'Operators = + − × ÷',
-  terms:'Terms are split by + and −.',
-  eq:'Equation has =. Expression does not.'
+  build:'Coefficient goes right in front of its letter. The constant stands alone. Keep each sign.'
 };
 function genVocab(force){
   const v1=pick(VARS),v2=pick(VARS.filter(x=>x!==v1));
@@ -429,7 +478,7 @@ function genVocab(force){
   const terms=pick(pats)(),tokens=[];
   terms.forEach((tm,i)=>{if(i)tokens.push({t:pick(['+','−']),k:'op'});tokens.push(...tm);});
   const plain=tokens.map(t=>(t.join?'':' ')+t.t).join('').trim();
-  let kind=force||pick(['coef','var','const','op','terms','eq','coef','const']);
+  let kind=force||pick(['coef','var','const','op','build','build','coef','const']);
   if(kind==='const'&&!tokens.some(t=>t.k==='const'))kind='coef';
   const base={cat:'vocab',key:'v'+kind+plain,tip:VTIP[kind]};
   if(kind==='coef'||kind==='const'){
@@ -437,13 +486,25 @@ function genVocab(force){
       if(tokens[i].k==='op'&&tokens[i+1].k===kind)tokens.splice(i,2,{t:tokens[i].t+tokens[i+1].t,k:kind});
     }
   }
-  if(kind==='terms'){
-    const n=terms.length;
-    return {...base,type:'mc',ask:'How many terms?',pclass:'p-vocab',prompt:plain,options:['1','2','3','4','5'],correct:String(n),cols:5,plain:'Terms: '+plain,answer:String(n)};
-  }
-  if(kind==='eq'){
-    const isEq=Math.random()<.5,shown=isEq?`${plain} = ${R(10,60)}`:plain,c=isEq?'Equation':'Expression';
-    return {...base,type:'mc',pclass:'p-vocab',prompt:shown,options:['Expression','Equation'],correct:c,cols:2,short:true,plain:shown,answer:c};
+  if(kind==='build'){
+    /* Build from the vocabulary: coefficients, variables, constant, signs. */
+    const c1=R(2,12),c2=R(2,12),k=R(1,20),neg=()=>Math.random()<.5;
+    const shape=pick(['vk','vk','vv','vvk']);
+    let ans,desc,n;
+    const sgn=(s,x)=>(s?'−':'')+x;
+    if(shape==='vk'){
+      const s=neg();ans=`${c1}${v1}${s?'-':'+'}${k}`;n=2;
+      desc=`<b>${v1}</b> has a coefficient of <b>${c1}</b>, and the constant is <b>${sgn(s,k)}</b>.`;
+    }else if(shape==='vv'){
+      const s=neg();ans=`${c1}${v1}${s?'-':'+'}${c2}${v2}`;n=2;
+      desc=`<b>${v1}</b> has a coefficient of <b>${c1}</b>, and <b>${v2}</b> has a coefficient of <b>${sgn(s,c2)}</b>.`;
+    }else{
+      const s1=neg(),s2=neg();ans=`${c1}${v1}${s1?'-':'+'}${c2}${v2}${s2?'-':'+'}${k}`;n=3;
+      desc=`<b>${v1}</b> has a coefficient of <b>${c1}</b>, <b>${v2}</b> has a coefficient of <b>${sgn(s1,c2)}</b>, and the constant is <b>${sgn(s2,k)}</b>.`;
+    }
+    const txt=`Build a ${n}-term expression: ${desc}`;
+    return {...base,key:'vbuild'+ans,type:'typed',ask:'Build the expression',pclass:'p-story',prompt:txt,
+      ans:[ans],trap:[],rev:[],equiv:true,plain:txt.replace(/<\/?b>/g,''),answer:ans};
   }
   return {...base,type:'tap',ask:`Tap the ${NAMES[kind]}`,tokens,target:kind,plain:`${NAMES[kind]}: ${plain}`,
     answer:tokens.filter(t=>t.k===kind).map(t=>t.t).join(', ')};
@@ -451,7 +512,7 @@ function genVocab(force){
 
 /* ---------- Teacher tracking (hidden from students) ---------- */
 const STORE='expressionsDrillTeacher';
-const CAT={w2e:'Words → expression',e2w:'Expression → words',story:'Word problems',class:'Class word problems',vocab:'Vocabulary'};
+const CAT={w2e:'Words → expression',e2w:'Phrase → expression',story:'Word problems',class:'Class word problems',vocab:'Vocabulary'};
 function blank(){return{cats:{w2e:{a:0,c:0},e2w:{a:0,c:0},story:{a:0,c:0},class:{a:0,c:0},vocab:{a:0,c:0}},streak:0,best:0,log:[]};}
 let T=blank();
 try{const s=localStorage.getItem(STORE);if(s){const o=JSON.parse(s);T=Object.assign(blank(),o);T.cats=Object.assign(blank().cats,o.cats||{});}}catch(e){}
@@ -499,7 +560,7 @@ function previewList(mode){
   const e=()=>[...E1,...E2].map(f=>{const[a,b]=nums();return mkE2W(f(pick(VARS),a,b));});
   const st=()=>STORIES.map((_,i)=>genStory(i));
   const cl=()=>CLASS.map((_,i)=>genClass(i));
-  const vo=()=>['coef','var','const','op','terms','eq'].map(k=>{let q;for(let g=0;g<40;g++){q=genVocab(k);if(q.key.startsWith('v'+k))break;}return q;});
+  const vo=()=>['coef','var','const','op','build'].map(k=>{let q;for(let g=0;g<40;g++){q=genVocab(k);if(q.key.startsWith('v'+k))break;}return q;});
   return {w2e:w,e2w:e,story:st,class:cl,vocab:vo,mix:()=>[...w(),...e(),...st(),...cl(),...vo()]}[mode]();
 }
 function gen(){
@@ -530,8 +591,11 @@ function render(){
   if(q.type==='typed'){
     S.tiles=PREVIEW?(q.fixParts?q.fixParts.flatMap(([p,c])=>tokenize(p).map(v=>({v,c}))):tokenize(q.ans[0]).map(v=>({v}))).map((t,i)=>({id:i,...t})):tilesFor(q);
     S.placed=PREVIEW?S.tiles.map(t=>t.id):[];S.buf='';
-    h+=`<div class="line"><span id="prompt">${PREVIEW?hl(q.prompt,q.kw):q.prompt}</span><span class="eq">=</span><div class="zone${PREVIEW?' ok done':''}" id="zone" tabindex="0" aria-label="Your expression"></div><span class="fix" id="fix"></span></div>
-      ${PREVIEW?'':'<div class="bank" id="bank"></div>'}`;
+    const zoneH=`<div class="zone${PREVIEW?' ok done':''}" id="zone" tabindex="0" aria-label="Your expression"></div><span class="fix" id="fix"></span>`;
+    h+=q.pclass
+      ?`<div class="${q.pclass}" id="prompt">${q.prompt}</div><div class="line">${zoneH}</div>`
+      :`<div class="line"><span id="prompt">${PREVIEW?hl(q.prompt,q.kw):q.prompt}</span><span class="eq">=</span>${zoneH}</div>`;
+    h+=PREVIEW?'':'<div class="bank" id="bank"></div>';
   }else if(q.type==='mc'){
     h+=`<div class="${q.pclass}" id="prompt">${q.prompt}</div>
       <div class="opts c${q.cols}${q.short?' short':''}">${q.options.map((o,i)=>`<button class="opt${q.math?' math':''}${PREVIEW&&o===q.correct?' ok':''}" data-i="${i}"${PREVIEW?' disabled':''}>${q.math?fmt(o):o}</button>`).join('')}</div>`;
@@ -591,13 +655,12 @@ function check(){
     flushBuf();
     const zone=$('#zone');
     if(!S.placed.length){zone.focus();return;}
-    const raw=S.placed.map(id=>S.tiles[id].v).join('');
-    const n=norm(raw);
-    const ok=q.ans.map(norm).includes(n);
+    const toks=S.placed.map(id=>S.tiles[id].v),raw=toks.join('');
+    const {ok,rev}=judge(q,toks);
     zone.classList.add(ok?'ok':'no','done');
     if(ok)return finish(true,'',raw);
     $('#fix').innerHTML=q.fixParts?q.fixParts.map(([p,t])=>`<span class="t${t}">${fmt(p)}</span>`).join(' '):fmt(q.ans[0]);
-    const tip=q.rev.map(norm).includes(n)?TIP.coef:q.tip;
+    const tip=rev?TIP.coef:q.tip;
     return finish(false,tip,raw);
   }
   if(q.type==='tap'){
@@ -625,7 +688,7 @@ function checkMC(i){
 const SHOW={'-':'−','/':'÷'};
 function tokenize(s){return String(s).match(/\d+(?:\.\d+)?|[A-Za-z]|[+\-\/]/g)||[];}
 function tilesFor(q){
-  const t=tokenize(q.ans[0]);
+  const t=tokenize(q.ans[0]).concat(q.extra||[]);
   ['+','-','/'].forEach(o=>{if(!t.includes(o))t.push(o);});
   return shuffle(t).map((v,i)=>({id:i,v}));
 }
@@ -635,8 +698,7 @@ function drawTiles(){
   zone.innerHTML=S.placed.map(id=>tileHTML(S.tiles[id])).join('');
   if(bank)bank.innerHTML=S.tiles.map(t=>tileHTML(t).replace('class="tile"',`class="tile${S.placed.includes(t.id)?' gone':''}"`)).join('');
   if(!PREVIEW&&!S.done&&!S.buf&&S.placed.length){
-    const n=norm(S.placed.map(id=>S.tiles[id].v).join(''));
-    if(S.q.ans.map(norm).includes(n))check();
+    if(judge(S.q,S.placed.map(id=>S.tiles[id].v)).ok)check();
   }
 }
 function place(id,idx){
@@ -736,10 +798,10 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ---------- Turning it in ----------
-   50 right on the first try pops up the turn-in page once. The Turn in
+   40 right on the first try pops up the turn-in page once. The Turn in
    button is always up, so anyone can send what they have at any time, and
    sending again later sends the newer count. */
-const GOAL=50,DRILL_NAME='Writing Expressions';
+const GOAL=40,DRILL_NAME='Writing Expressions';
 let records=[],popped=false,submitted=false,submittedAt=0;
 const correctCount=()=>records.filter(r=>r.ok).length;
 function turninOpen(){return !$('#turnin').hidden;}
